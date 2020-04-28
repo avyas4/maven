@@ -1,0 +1,128 @@
+package utility_FunctionLibrary;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.testng.ITestContext;
+import org.testng.ITestListener;
+import org.testng.ITestResult;
+import java.util.Date;
+import driver_TestScript.Driver_TestScript;
+
+public class ScreenshotUtility extends Driver_TestScript implements ITestListener{	
+	static File scrFile;
+	/*
+	###############################################################################
+	Function name:  onStart
+	Description  :  This method will execute before starting of Test suite
+	Parameters   :	 ITestContext
+	Return Value :  
+	###############################################################################
+	*/ 
+	public void onStart(ITestContext tr) {	
+		
+	}
+	/*
+	###############################################################################
+	Function name:  onFinish
+	Description  :  This method will execute, Once the Test suite is finished
+	Parameters   :	 ITestContext
+	Return Value :  
+	###############################################################################
+	*/ 
+	public void onFinish(ITestContext tr) {
+		
+	}
+	/*
+	###############################################################################
+	Function name:  onTestSuccess
+	Description  :  This method will execute only when the test is pass
+	Parameters   :	 ITestResult
+	Return Value :  
+	###############################################################################
+	*/ 
+	public void onTestSuccess(ITestResult tr) {
+		//If screenShotOnPass = yes, call captureScreenShot.
+		try{
+			captureScreenShot(tr,"pass");
+		}catch(Exception e){	
+		}	
+	}
+	/*
+	###############################################################################
+	Function name:  onTestFailure
+	Description  :  This method will execute only on the event of fail test
+	Parameters   :	 ITestResult
+	Return Value :  
+	###############################################################################
+	*/ 
+	public void onTestFailure(ITestResult tr) {		
+		captureScreenShot(tr,"fail");
+	}	
+	/*
+	###############################################################################
+	Function name:  onTestStart
+	Description  :  This method will execute before the main test start (@Test)
+	Parameters   :	 ITestResult
+	Return Value :  
+	###############################################################################
+	*/ 
+	public void onTestStart(ITestResult tr) {
+		
+	}
+	/*
+	###############################################################################
+	Function name:  onTestSkipped
+	Description  :  This method will execute only if any of the main test(@Test) get skipped
+	Parameters   :	 ITestResult
+	Return Value :  
+	###############################################################################
+	*/ 
+	public void onTestSkipped(ITestResult tr) {		
+	}
+	
+	public void onTestFailedButWithinSuccessPercentage(ITestResult tr) {
+	}
+	/*
+	###############################################################################
+	Function name:  captureScreenShot
+	Description  :  This function captures the screenshot
+	Parameters   :	 result, status
+	Return Value :  
+	###############################################################################
+	*/ 
+	public static void captureScreenShot(ITestResult result, String status){	
+		String destDir="";
+		String passfailMethod="Screenshot";
+		try{
+		passfailMethod = result.getMethod().getRealClass().getSimpleName() + "." + result.getMethod().getMethodName();
+		//To capture screenshot.
+		scrFile = ((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+		}catch(Exception e){	
+		}
+	  	DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy__hh_mm_ssaa");
+	  	//If status = fail then set folder name "screenshots/Failures"
+	  	if(status.equalsIgnoreCase("fail")){
+	  		destDir = screenshotPath+"/Fail/"+result.getMethod().getRealClass().getSimpleName();
+	  	}
+	  	//If status = pass then set folder name "screenshots/Success"
+	  	else if (status.equalsIgnoreCase("pass")){
+	  		destDir = screenshotPath+"/Pass/"+result.getMethod().getRealClass().getSimpleName();
+	  	}
+	  	//To create folder to store screenshots
+	  	new File(destDir).mkdirs();
+	  	//Set file name with combination of test class name + date time.
+	  	String destFile = passfailMethod+" - "+dateFormat.format(new Date()) + ".png";
+		try {
+		    //Store file at destination folder location
+		    FileUtils.copyFile(scrFile, new File(destDir + "/" + destFile));
+		    scrFile=null;
+		}catch (IOException e) {
+		    e.printStackTrace();
+		}
+	} 
+}
